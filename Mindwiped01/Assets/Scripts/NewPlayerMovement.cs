@@ -4,7 +4,11 @@ using UnityEngine;
 
 public class NewPlayerMovement : MonoBehaviour
 {
+    public GameObject player;
+    public GameObject playerSpawn;
+
     public CharacterController controller;
+    public AudioSource jumpSound;
 
     public float speed = 12f;
     public float gravity = -9.81f;
@@ -13,14 +17,17 @@ public class NewPlayerMovement : MonoBehaviour
     public Transform groundCheck;
     public float groundDistance = 0.4f;
     public LayerMask groundMask;
+    public LayerMask OutOfBoundsMask;
 
     Vector3 velocity;
     bool isGrounded;
+    bool isOutOfBounds;
 
     // Update is called once per frame
     void Update()
     {
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
+        isOutOfBounds = Physics.CheckSphere(groundCheck.position, groundDistance, OutOfBoundsMask);
 
         if (isGrounded && velocity.y < 0)
         {
@@ -36,6 +43,12 @@ public class NewPlayerMovement : MonoBehaviour
         if (Input.GetButtonDown("Jump") && isGrounded)
         {
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+            jumpSound.Play();
+        }
+        if (isOutOfBounds)
+        {
+            Debug.Log("OutOfBounds!");
+            player.transform.position = playerSpawn.transform.position;
         }
 
         velocity.y += gravity * Time.deltaTime;
