@@ -10,6 +10,7 @@ public class NewPlayerMovement : MonoBehaviour
     public CharacterController controller;
     public AudioSource jumpSound;
     public AudioSource jumpLand;
+    public AudioSource jumpLandOutOfBounds;
 
     public float speed = 12f;
     public float gravity = -9.81f;
@@ -47,11 +48,12 @@ public class NewPlayerMovement : MonoBehaviour
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
             jumpSound.Play();
         }
-        //Touchdown sound
-        else if (!isGrounded)
+        //Wait for landing 
+        else if (!isGrounded && !isOutOfBounds)
         {
             waitForTouchDown = true;
         }
+        //Landing on ground
         if (waitForTouchDown && isGrounded)
         {
             waitForTouchDown = false;
@@ -61,6 +63,12 @@ public class NewPlayerMovement : MonoBehaviour
         if (isOutOfBounds)
         {
             Debug.Log("OutOfBounds!");
+            //Landing out of bounds
+            if (waitForTouchDown)
+            {
+                waitForTouchDown = false;
+                jumpLandOutOfBounds.Play();
+            }
             player.position = respawnPoint.position;
             respawnPoint.position = player.position;
         }
