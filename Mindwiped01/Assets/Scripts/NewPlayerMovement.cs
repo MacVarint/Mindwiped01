@@ -4,11 +4,12 @@ using UnityEngine;
 
 public class NewPlayerMovement : MonoBehaviour
 {
-    public GameObject player;
-    public GameObject playerSpawn;
+    public Transform player;
+    public Transform respawnPoint;
 
     public CharacterController controller;
     public AudioSource jumpSound;
+    public AudioSource jumpLand;
 
     public float speed = 12f;
     public float gravity = -9.81f;
@@ -22,6 +23,7 @@ public class NewPlayerMovement : MonoBehaviour
     Vector3 velocity;
     bool isGrounded;
     bool isOutOfBounds;
+    bool waitForTouchDown = true;
 
     // Update is called once per frame
     void Update()
@@ -39,16 +41,28 @@ public class NewPlayerMovement : MonoBehaviour
         Vector3 move = transform.right * x + transform.forward * z;
 
         controller.Move(move * speed * Time.deltaTime);
-
+        //Jump
         if (Input.GetButtonDown("Jump") && isGrounded)
         {
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
             jumpSound.Play();
         }
+        //Touchdown sound
+        else if (!isGrounded)
+        {
+            waitForTouchDown = true;
+        }
+        if (waitForTouchDown && isGrounded)
+        {
+            waitForTouchDown = false;
+            jumpLand.Play();
+        }
+        //Out of bounds
         if (isOutOfBounds)
         {
             Debug.Log("OutOfBounds!");
-            player.transform.position = playerSpawn.transform.position;
+            player.position = respawnPoint.position;
+            respawnPoint.position = player.position;
         }
 
         velocity.y += gravity * Time.deltaTime;
