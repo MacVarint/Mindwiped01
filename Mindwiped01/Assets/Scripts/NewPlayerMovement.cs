@@ -12,6 +12,8 @@ public class NewPlayerMovement : MonoBehaviour
     public AudioSource jumpLand;
     public AudioSource jumpLandOutOfBounds;
 
+    public float walkSpeed = 12f;
+    public float sprintSpeedMultiplier = 1.5f;
     public float speed = 12f;
     public float gravity = -9.81f;
     public float jumpHeight = 3f;
@@ -40,8 +42,20 @@ public class NewPlayerMovement : MonoBehaviour
         float z = Input.GetAxis("Vertical");
 
         Vector3 move = transform.right * x + transform.forward * z;
+        move = move.normalized;
 
+        //Movement Speed
+        if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+        {
+            speed = walkSpeed * sprintSpeedMultiplier;
+        }
+        else
+        {
+            speed = walkSpeed;
+        }
         controller.Move(move * speed * Time.deltaTime);
+
+
         //Jump
         if (Input.GetButtonDown("Jump") && isGrounded)
         {
@@ -69,8 +83,9 @@ public class NewPlayerMovement : MonoBehaviour
                 waitForTouchDown = false;
                 jumpLandOutOfBounds.Play();
             }
-            player.position = respawnPoint.position;
-            respawnPoint.position = player.position;
+            this.transform.position = respawnPoint.position;
+            Debug.Log("Player" + this.transform.position);
+            Debug.Log("Respawn" + respawnPoint.position);
         }
 
         velocity.y += gravity * Time.deltaTime;
